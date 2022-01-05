@@ -1,0 +1,37 @@
+#' @title Simulating correllated efficacy and severity data
+#' @description \code{onesample} generates a data frame containing one efficacy variable and a number of adverse event duration and severity variables.
+#' @param nn The number of samples.
+#' @param eff A cutoff creating a binary efficacy variable from a convolution of exponentials.
+#' @param A table whose columns represent adverse events, and whose rows represent probabilities of various severity levels.
+#' @return A data frame with the above columns.
+#' @export
+onesample<-function(nn=200,eff=.4,
+   aeprob=cbind( c(.80,.05,.05,.05,.05), c(.85,.05,.05,.03,.02),
+      c(.90,.05,.03,.02,.01), c(.95,.02,.01,.01,.01))){
+# Extract the number of columlns from the third argument, giving the number
+# of adverse events.
+   nae<-dim(aeprob)[2]
+# Create data frames to contain severity (aes) and duration (aed) values.
+   aes<-aed<-data.frame(array(NA,c(nn,nae)))
+# Give names to these columns.
+   names(aes)<-paste("Sev",seq(nae),sep="")
+   names(aed)<-paste("Dur",seq(nae),sep="")
+# Create a common variable contributing to efficacy, AE serverity, and duration.
+   bad<-rexp(nn)## To adjust correlation, multiply this by a constant.  Sepcifically, to lower correlation, multiply by something less than one.
+# Create a continuous efficacy variable, consisting of the shared component calculated above, and a new independent component.  This is now Gamma(2).
+   ef1<-rexp(nn)+bad
+# Convert this efficacy variable into a binary variable, by cutting off by the quantile of the gamma(2) distributon.
+   ef1<-as.numeric(ef1>qgamma(1-eff,2)) ## As written, eff reflects the probability of a positive efficacy outcome.  This will not be the case if bad is multiplied by something to change correlation.
+   for(jj in seq(nae)){ 
+# Generate an independent compoent for each ae, and convert to a probability.
+      temp<-pgamma(rexp(nn)+bad,2) ## If bad is multiplied by something to change correlation, this won't be scaled correctly.
+# Use this to select among ordered categories.
+      aes[,jj]<-apply(outer(cumsum(aeprob[,jj]),temp,"<"),2,"sum")
+# Generate duration for AE.
+      aed[,jj]<-bad+rexp(nn)
+   }
+   return(data.frame(cbind(ef1,aes,aed)))
+}
+aaa<-onesample()
+cov(aaa$ef1,aaa$Sev1)
+cov(aaa$ef1,aaa$Dur1)

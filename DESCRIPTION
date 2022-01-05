@@ -1,0 +1,9 @@
+Package: AESim
+Version: 0.0
+License: GPL-2
+Description: We simulate data with potentially dependent efficacy and safety data.
+Title: Adverse Event Simulator
+Author: Yodit Seifu and John Kolassa
+Maintainer: John Kolassa <kolassa@stat.rutgers.edu>
+Encoding: UTF-8 
+RoxygenNote: 7.1.1

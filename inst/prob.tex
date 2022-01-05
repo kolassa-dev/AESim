@@ -1,0 +1,79 @@
+\input macros.tex \input fonts.cm12.tex 
+\twelvepoint
+%\elevenpoint
+\def\expon{\hbox{Expon}}
+\def\probof#1#2{P\left[#2\right]}
+\def\frac#1#2{{{#1}\over{#2}}}
+\par\noindent{\bf A Distribution Function Result}\par
+Suppose $W$, $X$, and $Y$ are independent exponentials.  Let $Z=\gamma W+\beta X+\alpha Y$.  
+Let $F(z,\alpha,\beta,\gamma)$ be the distribution function of $Z=\beta X+\alpha Y+\gamma W$.
+Then for fixed $X$ and $Y$, $W$ ranges from zero to $(z-\beta X-\alpha Y)/\gamma$.
+By definition, $$\eqalign{
+\probof{}{Z\leq z}
+&=\int_0^{z/\alpha}\int_0^{(z-\alpha y)/\beta}\int_0^{(z-\alpha y-\beta x)/\gamma}\exp(-x-y-w) ~d w~d x~d y.\cr}$$
+Without loss of generality, suppose $\alpha\geq\beta\geq\gamma\geq 0$.
+Consider the case with $\alpha>\beta>\gamma>0$.  
+Then 
+$$\eqalign{ \probof{}{Z\leq z}
+&=\int_0^{z/\alpha}\int_0^{(z-\alpha y)/\beta}[ \sinh \left(\frac{z-\alpha  y-\beta  x}{\gamma }+x+y\right)-\cosh \left(\frac{z-\alpha  y-\beta  x}{\gamma }
++x+y\right)
+\cr&
+-\sinh (x+y)+\cosh (x+y)]
+~d x~d y\cr
+&=\int_0^{z/\alpha}\frac{e^{-y} \left(\beta  \left(-e^{\frac{\alpha  y-z}{\beta }}\right)+\gamma \left(e^{\frac{\alpha  y-z}{\gamma }}-1\right)+\beta \right)}{\beta -\gamma } ~d y\cr
+&=   \frac{\frac{\beta ^2 \left(e^{-\frac{z}{\alpha }}-e^{-\frac{z}{\beta
+    }}\right)}{\beta -\alpha }-\beta  e^{-\frac{z}{\alpha }}-\frac{\gamma 
+    \left(\alpha  \left(-e^{-\frac{z}{\alpha }}\right)+\alpha +\gamma 
+    \left(e^{-\frac{z}{\gamma }}-1\right)\right)}{\alpha -\gamma }+\beta }{\beta
+    -\gamma }
+}$$
+Similarly, if $\alpha>\beta>\gamma=0$,
+$$\eqalign{ \probof{}{Z\leq z}
+&=\int_0^{z/\alpha}\int_0^{(z-\alpha y)/\beta}\exp(-x-y)~d x dy. \cr }$$
+The special case with $\alpha=\beta$ and $\beta=\gamma$ might also be calculated, but are omitted here.
+\def\junk{
+Suppose $\beta\ne\alpha$.
+Then
+$$ \probof{}{Z\leq z} = 1+{{\beta\exp(-z/\beta)-\alpha\exp(-z/\alpha)}\over{\alpha-\beta}}.$$
+If $\beta=\alpha$, then
+$$\probof{}{Z\leq z}= 1-\exp(-z/\alpha)(1-z/\alpha).$$
+}
+%inside1=Integrate[Exp[-x-y-w],{w,0,(z-alpha y-beta x)/gamma}]
+%inside2=Integrate[inside1,{x,0,(z-alpha y)/beta}]
+%(* gamma=0 case*)
+%inside1=Exp[-x-y]
+%TeXForm[Simplify[inside]]
+%zz[z_]=Simplify[Integrate[inside2,{y,0,z/alpha}]]
+%TeXForm[zz[z]]
+\par\noindent{\bf Simulations}\par
+
+Simulate related values of efficacy, adverse event severity, and adverse evemt duration.
+Let $K$ represent the number of types of adverse events.  Let $J$ represent the maximal severity score; serverity scores are then $j\in\{0,1,\ldots,J\}$.
+Efficacy is represented by $E$, severities are represented by $S_k$, and durations are represented by $D_k$.
+In all cases, simulated variables are independent.
+
+Choose an efficacy threshold $\epsilon$, duration means $\mu_k$, severity proportions $\pi_0,\ldots,\pi_J$, 
+a coefficient $\alpha$ controling association among efficacy, severity, and duration,
+and a coefficient $\gamma$ adding association among severity and duration but not efficacy.
+
+Let $Y\sim\expon(1)$ and $X\sim\expon(1)$ and $U\sim\expon(1)$.
+Let $$E=\cases{
+0&if $F(X+\alpha Y,\alpha,1,\gamma)\leq 1-\epsilon$,\cr
+1&if $F(\beta X+\alpha Y,\alpha,1,\gamma)> 1-\epsilon$.\cr}$$
+
+For adverse event type $k\in\{1,\ldots,K\}$, let $T_k\sim\expon(1)$ and let $V_k\sim\expon(1)$.
+Let $D_k=\alpha Y+\gamma U+(\mu_k-\alpha-\gamma) T_k$, and let $$S_k=
+\cases{
+0&if $F(\alpha Y+V_k,\alpha,1,\gamma)<\pi_0$,\cr
+1&if $\pi_0\leq F(\alpha Y+\gamma U+V_k,\alpha,1,\gamma)<\pi_0+\pi_1$,\cr
+\vdots&$\vdots$,\cr
+j-1&if $\pi_0+\ldots+\pi_{j-2}\leq F(\alpha Y+\gamma U+V_k,\alpha,1,\gamma)<\pi_0+\ldots+\pi_{j-1}$,\cr
+j&if $\pi_0+\ldots+\pi_{j-1}\leq F(\alpha Y+\gamma U+V_k,\alpha,1,\gamma)$.\cr
+}$$
+
+Consider various scenarios:
+\item{1.}  All subjects have efficacy, event severity, and event duration related, with duration mean 8 days.  One might take $\alpha=1$ (the default), $\gamma=0$ (the default), and $\mu_k=8\forall k$. 
+\item{2.}  All subjects have event severity, and event duration related, with duration mean 8 days.  One might take $\alpha=0$, $\gamma=1$, and $\mu_k=8\forall k$. 
+\item{3.}  All subjects have efficacy, event severity, and event duration highly related, with duration mean 8 days.  One might take $\alpha=7$, $\gamma=0$ (the default), and $\mu_k=8\forall k$. 
+\item{4.}  No correlation between efficacy and duration or severity, but some correlation between severity and duration.  One might take $\alpha=0$, $\gamma=2$ and $\mu_k=8\forall k$. 
+\end
